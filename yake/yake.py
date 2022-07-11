@@ -55,7 +55,7 @@ class KeywordExtractor(object):
     def seqm(self, cand1, cand2):
         return Levenshtein.ratio(cand1, cand2)
 
-    def extract_keywords(self, text):
+    def extract_keywords(self, text, retain_order=False):
         try:
             if not(len(text) > 0):
                 return []
@@ -65,7 +65,10 @@ class KeywordExtractor(object):
             dc.build_single_terms_features(features=self.features)
             dc.build_mult_terms_features(features=self.features)
             resultSet = []
-            todedup = sorted([cc for cc in dc.candidates.values() if cc.isValid()], key=lambda c: c.H)
+            if retain_order:
+                todedup = [cc for cc in dc.candidates.values() if cc.isValid()]
+            else:
+                todedup = sorted([cc for cc in dc.candidates.values() if cc.isValid()], key=lambda c: c.H)
 
             if self.dedupLim >= 1.:
                 return ([ (cand.unique_kw, cand.H) for cand in todedup])[:self.top]
